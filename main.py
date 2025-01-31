@@ -4,7 +4,7 @@ import os
 import time
 import subprocess
 import sys
-
+import math
 
 textC = "text"
 sta_path = "config/conf.txt"
@@ -26,6 +26,70 @@ options_b="#"
 
 font_style = "Consolas"
 size = 10
+
+class FigureLogic:
+    FOS = "/pl/list.txt"  # figure of speech file
+    TURN = "output.txt"    # current turn file
+    PLAYERS = "/gm/stats.txt"
+
+    @staticmethod
+    def sigmoid(x):
+        """Python implementation of the C++ sigmoid function"""
+        return 10.0/(1.0 + math.pow(1.6, -x)) + 10.0
+
+    @staticmethod
+    def inverted_sigmoid(x):
+        """Python implementation of the C++ invertedSigmoid function"""
+        return -math.log((20.0-x)/(x-10.0))/math.log(1.6)
+
+    @staticmethod
+    def load_map(filepath):
+        """Load figures and their scores from file"""
+        figure_map = {}
+        try:
+            with open(filepath, 'r') as file:
+                for line in file:
+                    if ';' in line:
+                        figure, score = line.strip().split(';')
+                        figure_map[figure] = float(score)
+        except FileNotFoundError:
+            print(f"Warning: Could not find file {filepath}")
+        return figure_map
+
+    @staticmethod
+    def save_map(filepath, figure_map):
+        """Save figures and their scores to file"""
+        with open(filepath, 'w') as file:
+            for figure, score in figure_map.items():
+                file.write(f"{figure};{score}\n")
+
+    @staticmethod
+    def update_scores(figure_map):
+        """Update scores using sigmoid functions"""
+        for figure in figure_map:
+            x = FigureLogic.inverted_sigmoid(figure_map[figure])
+            if x > 0:
+                figure_map[figure] = FigureLogic.sigmoid(int(math.sqrt(x)))
+            else:
+                figure_map[figure] = FigureLogic.sigmoid(int(math.sqrt(abs(x)) * -1.0))
+        return figure_map
+
+    @staticmethod
+    def refresh(base_path):
+        """Main refresh function that updates all figure scores"""
+        fos_path = base_path + FigureLogic.FOS
+        figure_map = FigureLogic.load_map(fos_path)
+        figure_map = FigureLogic.update_scores(figure_map)
+        FigureLogic.save_map(fos_path, figure_map)
+
+    @staticmethod
+    def get_path():
+        """Get base path from path.txt"""
+        try:
+            with open("path.txt", 'r') as file:
+                return file.readline().strip()
+        except FileNotFoundError:
+            return ""
 
 class App:
     def __init__(self, root):
@@ -296,9 +360,10 @@ class App:
     
     def end_round(self):
         try:
-            subprocess.run("refresh.exe", shell=True, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
+            base_path = FigureLogic.get_path()
+            FigureLogic.refresh(base_path)
+        except Exception as e:
+            print(f"Error refreshing figures: {e}")
 
 if __name__ == "__main__":
     root = tk.Tk()
