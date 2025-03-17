@@ -4,7 +4,7 @@ let figures = [];
 let story = [];
 let scores = {};
 
-// Sigmoid function for dynamic difficulty adjustment
+// Sigmoid function for dynamic value adjustment
 function sigmoid(x) {
   return 1 / (1 + Math.exp(-x));
 }
@@ -25,7 +25,7 @@ document.getElementById('add-player').addEventListener('click', () => {
 document.getElementById('add-figure').addEventListener('click', () => {
   const figureName = document.getElementById('figure-name').value;
   if (figureName) {
-    figures.push({ name: figureName, difficulty: 0.5 }); // Start with medium difficulty
+    figures.push({ name: figureName, value: 0.5 }); // Start with medium value
     updateFigureList();
     updateFigureSelect();
     document.getElementById('figure-name').value = '';
@@ -55,19 +55,21 @@ document.getElementById('mark-incorrect').addEventListener('click', () => {
   updateScore(player, figure, false);
 });
 
-// Update score and difficulty
+// Update score and value
 function updateScore(player, figure, isCorrect) {
   const figureObj = figures.find(f => f.name === figure);
   if (figureObj) {
-    // Adjust difficulty based on correctness
-    const delta = isCorrect ? -0.1 : 0.1; // Adjust this value for faster/slower learning
-    figureObj.difficulty = sigmoid(figureObj.difficulty + delta);
+    // Update player score
+    if (isCorrect) {
+      scores[player] += figureObj.value; // Add value to player's score
+      figureObj.value = sigmoid(figureObj.value - 1); // Decrease value
+    } else {
+      scores[player] -= figureObj.value; // Subtract value from player's score
+      figureObj.value = sigmoid(figureObj.value + 1); // Increase value
+    }
 
-    // Ensure difficulty stays within bounds (0 to 1)
-    figureObj.difficulty = Math.max(0, Math.min(1, figureObj.difficulty));
-
-    // Update player score: value = difficulty
-    scores[player] += figureObj.difficulty;
+    // Ensure value stays within bounds (0 to 1)
+    figureObj.value = Math.max(0, Math.min(1, figureObj.value));
 
     // Update UI
     updateFigureList();
@@ -107,7 +109,7 @@ function updatePlayerList() {
 function updateFigureList() {
   const list = document.getElementById('figure-list');
   list.innerHTML = figures.map(figure => 
-    `<li>${figure.name} (Difficulty: ${figure.difficulty.toFixed(2)}, Value: ${figure.difficulty.toFixed(2)})</li>`
+    `<li>${figure.name} (Value: ${figure.value.toFixed(2)})</li>`
   ).join('');
 }
 
