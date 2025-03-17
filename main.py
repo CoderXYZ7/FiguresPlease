@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 
+
 textC = "text"
 sta_path = "config/conf.txt"
 
