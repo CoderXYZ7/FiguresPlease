@@ -58,19 +58,19 @@ class App:
         self.create_tab1_widgets()
         self.create_tab2_widgets()
         self.create_tab3_widgets()
-        
+
     def clear_tab1_widgets(self):
         for widget in self.tab1.winfo_children():
             widget.destroy()
-            
+
     def clear_tab2_widgets(self):
         for widget in self.tab2.winfo_children():
             widget.destroy()
 
     def create_tab1_widgets(self):
-        
+
         self.clear_tab1_widgets()
-        
+
         canvas1 = tk.Canvas(self.tab1, bg=palette['tabbg'], bd=0)
         canvas1.pack(fill='both', expand=True)
 
@@ -104,29 +104,29 @@ class App:
         dropdown_a = tk.StringVar()
         dropdown_a.set(options_a[0])
         menu_a = tk.OptionMenu(canvas1, dropdown_a, *options_a)
-        menu_a.grid(row=2, column=3, padx=10, pady=10)  
-        
+        menu_a.grid(row=2, column=3, padx=10, pady=10)
+
         dropdown_b = tk.StringVar()
         dropdown_b.set(options_b[0])
         menu_b = tk.OptionMenu(canvas1, dropdown_b, *options_b)
-        menu_b.grid(row=3, column=3, padx=10, pady=10)  
-        
-        tk.Button(canvas1, text="V", command=self.on_press_v).grid(row=2, column=4, padx=10, pady=10)  
-        tk.Button(canvas1, text="F", command=self.on_press_f).grid(row=3, column=4, padx=10, pady=10) 
-        
+        menu_b.grid(row=3, column=3, padx=10, pady=10)
+
+        tk.Button(canvas1, text="V", command=self.on_press_v).grid(row=2, column=4, padx=10, pady=10)
+        tk.Button(canvas1, text="F", command=self.on_press_f).grid(row=3, column=4, padx=10, pady=10)
+
 
 
     def create_tab2_widgets(self):
-        
+
         self.clear_tab2_widgets()
-        
+
         canvasB = tk.Canvas(self.tab2, bg=palette['tabbg'], bd=0)
         canvasB.pack(fill='both', expand=True)
-        
+
         canvas2 = tk.Canvas(canvasB, bg='white', bd=0, height=800, width=1400)
         canvas2.grid(row=1, column=1, padx=10, pady=10)
-        
-        tk.Button(canvasB, text="Update", command=self.create_tab2_widgets).grid(row=1, column=2, padx=10, pady=10) 
+
+        tk.Button(canvasB, text="Update", command=self.create_tab2_widgets).grid(row=1, column=2, padx=10, pady=10)
 
         global sta_path
         # Read the content from the stats.txt file
@@ -149,8 +149,8 @@ class App:
             for j, value in enumerate(values):
                 canvas2.create_text(60 + j * 40, 20 + i * 30, anchor=tk.W, text=f"[{value}]")
 
-        
-        
+
+
 
     def create_tab3_widgets(self):
         canvas3 = tk.Canvas(self.tab3, bg=palette['tabbg'], bd=0)
@@ -197,7 +197,7 @@ class App:
             print(lis_path)
         except Exception as e:
             print(f"Error reading file: {e}")
-    
+
     def execute_action(self):
         current_file_path = os.path.abspath(sys.argv[0])
         main_path = os.path.dirname(current_file_path)
@@ -293,7 +293,7 @@ class App:
         with open(pla_path, "r") as file:
             options = [line.strip().replace(";", " ") for line in file]
         return options
-    
+
     def end_round(self):
         try:
             subprocess.run("refresh.exe", shell=True, check=True)
